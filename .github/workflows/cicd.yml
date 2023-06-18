@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: CI Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_DISABLE_GUI_ERRORS: 1
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: 0
+      DOTNET_NOLOGO: 1
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
+    steps:
+
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+
+    - name: Restore
+      run: dotnet restore -p:Configuration=Release
+
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    - name: Test
+      run: |
+        dotnet test -c Release --no-build --verbosity normal
