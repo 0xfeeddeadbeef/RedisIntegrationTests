@@ -48,4 +48,13 @@ public class UnitTest1
         var wasSet = db.StringSet("BYE", "WORLD", expiry: TimeSpan.FromMinutes(5d));
         Assert.True(wasSet);
     }
+
+    [Fact]
+    public void Test3()
+    {
+        var db = _redis.Connection!.GetDatabase();
+        var wasSet = db.StringSet("KEY1", "VALUE1", expiry: TimeSpan.FromMinutes(5d));
+        Assert.True(wasSet);
+        Assert.Equal("VALUE1", (string?)db.StringGet("KEY1"));
+    }
 }
