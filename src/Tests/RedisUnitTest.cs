@@ -24,13 +24,14 @@
 namespace RedisIntegrationTests;
 
 [Collection("Redis")]
-public class UnitTest1
+public class RedisUnitTest
 {
     private readonly RedisFixture _redis;
 
-    public UnitTest1(RedisFixture redis)
+    public RedisUnitTest(RedisFixture redis)
     {
-        _redis = redis ?? throw new ArgumentNullException(nameof(redis));
+        ArgumentNullException.ThrowIfNull(redis);
+        _redis = redis;
     }
 
     [Fact]
@@ -42,19 +43,19 @@ public class UnitTest1
     }
 
     [Fact]
-    public void Test2()
+    public async Task Test2()
     {
         var db = _redis.Connection!.GetDatabase();
-        var wasSet = db.StringSet("BYE", "WORLD", expiry: TimeSpan.FromMinutes(5d));
+        var wasSet = await db.StringSetAsync("BYE", "WORLD", expiry: TimeSpan.FromMinutes(5d));
         Assert.True(wasSet);
     }
 
     [Fact]
-    public void Test3()
+    public async Task Test3()
     {
         var db = _redis.Connection!.GetDatabase();
-        var wasSet = db.StringSet("KEY1", "VALUE1", expiry: TimeSpan.FromMinutes(5d));
+        var wasSet = await db.StringSetAsync("KEY1", "VALUE1", expiry: TimeSpan.FromMinutes(5d));
         Assert.True(wasSet);
-        Assert.Equal("VALUE1", (string?)db.StringGet("KEY1"));
+        Assert.Equal("VALUE1", (string?)await db.StringGetAsync("KEY1"));
     }
 }

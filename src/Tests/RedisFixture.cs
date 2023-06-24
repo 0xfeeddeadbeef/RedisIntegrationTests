@@ -21,23 +21,26 @@
  *
  */
 
+namespace RedisIntegrationTests;
+
 using StackExchange.Redis;
 using Testcontainers.Redis;
 
-namespace RedisIntegrationTests;
-
 public class RedisFixture : IAsyncLifetime
 {
-    private readonly RedisContainer _container;
-
     public RedisFixture()
     {
-        _container = new RedisBuilder()
+        Container = new RedisBuilder()
             .WithImage("redis:6.2")
             .WithCleanUp(true)
             .WithExposedPort(RedisBuilder.RedisPort)
             .WithPortBinding(RedisBuilder.RedisPort, assignRandomHostPort: true)
             .Build();
+    }
+
+    private RedisContainer Container
+    {
+        get; set;
     }
 
     public IConnectionMultiplexer? Connection
@@ -47,9 +50,9 @@ public class RedisFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        await _container.StartAsync().ConfigureAwait(false);
+        await Container.StartAsync().ConfigureAwait(false);
 
-        Connection = await ConnectionMultiplexer.ConnectAsync(_container.GetConnectionString()).ConfigureAwait(false);
+        Connection = await ConnectionMultiplexer.ConnectAsync(Container.GetConnectionString()).ConfigureAwait(false);
         _ = await Connection.GetDatabase().ExecuteAsync("FLUSHALL", "SYNC").ConfigureAwait(false);
     }
 
@@ -69,6 +72,6 @@ public class RedisFixture : IAsyncLifetime
             await Connection.DisposeAsync().ConfigureAwait(false);
         }
 
-        await _container.DisposeAsync().ConfigureAwait(false);
+        await Container.DisposeAsync().ConfigureAwait(false);
     }
 }
